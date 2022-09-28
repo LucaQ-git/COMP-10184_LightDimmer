@@ -1,141 +1,66 @@
+// Luca Quacquarelli
+// 000838997
+// 2022-09-26
 // Mohawk College - COMP-10184 
-// 
-// Pulse Width Modulation - Test Program 
-// 
+// Statement of authorship: I Luca Quacqarelli, 000838997 certify that this material is my original work.
+//No other person's work has been used without due acknowledgement. 
+
 #include <Arduino.h> 
 
-int readValue = 0;
-int iButton;
 
-int state = 0;
+const int led = D4;// We will use the internal LED
+const int iButton = D5;// this pin is our push button
+const int readValue = A0;// this pin is our potentiometer
 
-int buttonOld = 1;
+// A variable to store the last state of the button 
+int lastButtonState = HIGH;
+bool LEDOn = true; // on or off switch
 
 
-void setup() { 
+
+void setup() {
   // configure the USB serial monitor 
   Serial.begin(115200); 
- 
-  // configure pin D4 as a digital output - this is the LED 
-  pinMode(iButton,INPUT);
-  pinMode(D4, OUTPUT); 
- 
-  // set default PWM range 
-  analogWriteRange(1023); 
-} 
 
-void loop() { 
- 
-   // read digitized value from the D1 Mini's A/D convertor 
-  readValue = analogRead(A0); 
+  pinMode(led, OUTPUT); // Set the LED Pin as an output
+  pinMode(iButton, INPUT_PULLUP); // Set the Tilt Switch as an input
 
-  // turn the LED ON 
-  analogWrite(D4, readValue); 
-   
- 
-  // read the push button input... 
-  iButton = digitalRead(D5); 
+  analogWriteRange(1023); //set default PWM range
+}// end setup()
 
-  //iButton=digitalRead(buttonPin);
-  if(state == 0) {
-    if (state == 1) {
-      digitalWrite(D4,HIGH);
-      state = 1;
-    }
-    else{
-      digitalWrite(D4, LOW);
-      state = 0;
-    }
-  }
-  buttonOld=iButton;
-  delay(100);
 
+void loop() {
   
+  int buttonState = digitalRead(iButton);  // Take a reading
+  
+  // ... and write it to the LED output 
+  int potentiometerValue = analogRead(readValue);
 
-  /*
-  if (digitalRead(iButton) == readValue){
-    if (buttonflag == 0) {             
-      buttonflag = 1;                  
-      digitalWrite(D4, HIGH);     
-      }                           
-    else {                        
-      buttonflag = 0;                  
-      digitalWrite(D4, LOW);      
+  // checking the current and last state of the button
+  if (buttonState == LOW && lastButtonState == HIGH) { // button has been released
+
+    // Checking if the led is on or off 
+    if(LEDOn) { 
+        LEDOn = false; //Off 
     }
+    else { 
+      LEDOn = true; // On 
+    }
+
     delay(1);
-  }  */ 
-  // wait 1ms 
- // delay(1); 
- 
-  // turn the LED OFF 
-  //digitalWrite(D4, iVal); 
-  // wait 9ms 
-  //delay(9); 
- 
-}
-
-
-
-
-
-/*
-static boolean oldSwitchState = digitalRead(iButton);
-  boolean newSwitchState = digitalRead(readValue);
-  
-  if (newSwitchState != oldSwitchState) {
-    // Switch has changed state.  Remember the new state
-    oldSwitchState = newSwitchState;
-    digitalWrite(readValue, HIGH);
-    delay(100);  // Pulse length
-    digitalWrite(readValue, LOW);
   }
- int i; 
-   
-  for ( i=0; i<1024; ++i) { 
-    // set the PWM pulse width 
-    analogWrite(D4, i); 
- 
-    // wait 1ms to add DRAMA! 
-    delay(1); 
-  } */
+  // The last state of the button now equals the current state of the button 
+  lastButtonState = buttonState;
 
-/*
-void loop() { 
-  // turn the LED ON 
-  digitalWrite(D4, LOW); 
-  // wait 1ms 
-  delay(1); 
- 
-  // turn the LED OFF 
-  digitalWrite(D4, HIGH); 
-  // wait 9ms 
-  delay(9); 
-} */
-
-/*
-void loop() { 
-  // turn the LED ON 
-  digitalWrite(D4, LOW); 
-  // wait 10ms 
-  delay(10); 
- 
-  // turn the LED OFF 
-  digitalWrite(D4, HIGH); 
-  // wait 1990ms 
-  delay(1990); 
-} */
- 
- /*
-void loop() { 
-  // turn the LED ON 
-  digitalWrite(D4, LOW); 
-  // wait 1s 
-  delay(1000); 
- 
-  // turn the LED OFF 
-  digitalWrite(D4, HIGH); 
-  // wait 1s 
-  delay(1000); 
-} */
-
+  // Depending on if the lead is on or off  
+  if (LEDOn) {
+    // Turn the led back to the potentiometer value 
+    digitalWrite(led, potentiometerValue); 
+  }
+  else {
+    // Turn the LED completely off 
+    digitalWrite(led, HIGH); 
+  }
+  delay(1);
+}// end loop()
  
